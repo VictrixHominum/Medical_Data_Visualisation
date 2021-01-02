@@ -11,25 +11,24 @@ df['overweight'] = ((df["weight"]/(df["height"]/100)**2) > 25).astype(int)
 
 
 # Normalize data by making 0 always good and 1 always bad. If the value of 'cholestorol' or 'gluc' is 1, the value gies to 0. If the value is more than 1, the value goes to 1.
-df.loc[(df.cholesterol == 1), 'cholesterol'] = '0'
-df.loc[(df.cholesterol == 2 | 3), 'cholesterol'] = '1'
-df.loc[(df.gluc == 1), 'gluc'] = '0'
-df.loc[(df.gluc == 2 | 3), 'gluc'] = '1'
+df.loc[(df.cholesterol == 1), 'cholesterol'] = 0
+df.loc[(df.cholesterol > 1), 'cholesterol'] = 1
+df.loc[(df.gluc == 1), 'gluc'] = 0
+df.loc[(df.gluc > 1), 'gluc'] = 1
 
-print(df.gluc.head())
 
 # Draw Categorical Plot
 def draw_cat_plot():
     # Create DataFrame for cat plot using `pd.melt` using just the values from 'cholesterol', 'gluc', 'smoke', 'alco', 'active', and 'overweight'.
-    df_cat = None
-
+    df_cat = pd.melt(df, id_vars=['cardio'], value_vars=['active', 'alco', 'cholesterol', 'gluc', 'overweight', 'smoke'])
 
     # Group and reformat the data to split it by 'cardio'. Show the counts of each feature. You will have to rename one of the collumns for the catplot to work correctly.
-    df_cat = None
+    df_cat['total'] = 1
+    df_cat = df_cat.groupby(['variable', 'cardio', 'value'], as_index=False).count()
 
     # Draw the catplot with 'sns.catplot()'
-
-
+    g = sns.catplot(x='variable', y='total', hue="value", col="cardio", data=df_cat, kind='bar')
+    fig = g.fig
 
     # Do not modify the next two lines
     fig.savefig('catplot.png')
