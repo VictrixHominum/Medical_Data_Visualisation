@@ -35,19 +35,23 @@ def draw_cat_plot():
 # Draw Heat Map
 def draw_heat_map():
     # Cleaning the data so no erroneous or outliers patients are included
-    df_heat = df.drop(df[(df.ap_lo <= df.ap_hi) | (df.height <= df.height.quantile(0.025)) | (df.height >= df.height.quantile(0.975)) | (df.weight <= df.weight.quantile(0.025)) | (df.weight >= df.weight.quantile(0.975))].index)
+    df_heat = df[(df.ap_lo <= df.ap_hi) &
+                 (df.height >= df.height.quantile(0.025)) &
+                 (df.height <= df.height.quantile(0.975)) &
+                 (df.weight >= df.weight.quantile(0.025)) &
+                 (df.weight <= df.weight.quantile(0.975))]
 
     # Establishing the correlation matrix
-    corr = df_heat.corr(method='pearson')
+    corr = df_heat.corr()
 
     # Generating a mask for the upper triangle
-    mask = np.triu(np.ones_like(corr, dtype=bool))
+    mask = np.triu(corr)
 
     # Set up the matplotlib figure
-    fig, ax = plt.subplots(figsize=(11,9))
+    fig, ax = plt.subplots(figsize=(9, 9))
 
     # Draw the heatmap with 'sns.heatmap()'
-    sns.heatmap(corr, mask=mask, square=True)
+    sns.heatmap(corr, mask=mask, square=True, annot=True, fmt=".1f")
 
 
     # Do not modify the next two lines
